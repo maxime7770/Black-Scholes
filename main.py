@@ -52,6 +52,8 @@ X_test_full = X_test
 y_test_full = y_test
 model_full.evaluate(x=X_test, y=y_test)
 
+model_full.save("model_full.h5")
+
 # testing neural network (sparse data)
 sparseDF = pd.read_csv("dataSparse.csv")
 
@@ -83,6 +85,8 @@ plt.legend(['Error', 'Test'], loc='upper left')
 plt.show()
 model_sparse.evaluate(x=X_test_full, y=y_test_full)
 
+model_sparse.save("model_sparse.h5")
+
 
 # testing neural network (extremes data)
 extremesDF = pd.read_csv("dataExtremes.csv")
@@ -113,6 +117,10 @@ plt.xlabel('Epoch')
 plt.legend(['Error', 'Test'], loc='upper left')
 plt.show()
 model_extremes.evaluate(x=X_test_full, y=y_test_full)
+
+model_extremes.save("model_extremes.h5")
+
+
 tableOutput = pd.DataFrame({'Full': history_full.history['val_loss'],
                             'Sparse': history_sparse.history['val_loss'],
                             'Extremes': history_extremes.history['val_loss']}, columns=['Full', 'Sparse', 'Extremes'])
