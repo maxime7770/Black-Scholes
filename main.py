@@ -15,7 +15,8 @@ from scipy.stats import gamma
 from scipy.stats import beta
 from scipy.stats import uniform
 from keras.models import Model
-from keras.layers import Input, Dense
+from keras.layers import Input, Dense, Dropout
+from keras.regularizers import l2
 from sklearn.model_selection import train_test_split
 
 
@@ -26,9 +27,12 @@ fullDF = pd.read_csv("dataFull.csv")
 def baseline_model():
     # create model
     i = Input(shape=(6,))
-    x = Dense(10, activation='relu')(i)
-    y = Dense(10, activation='relu')(x)
-    o = Dense(1)(y)
+    x = Dense(20, activation='relu')(i)
+    y = Dense(100, activation='relu', kernel_regularizer=l2(
+        0.01), bias_regularizer=l2(0.01))(x)
+    z = Dense(20, activation='relu')(y)
+
+    o = Dense(1)(z)
     model = Model(i, o)
     model.compile(loss="mse", optimizer="adam")
     return model
@@ -39,7 +43,7 @@ X = fullDF[['S', 'K', 'q', 'r', 'sigma', 't']]
 y = fullDF[['price']]
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.1, random_state=7)
-history_full = model_full.fit(X_train, y_train, batch_size=64, epochs=20,
+history_full = model_full.fit(X_train, y_train, batch_size=64, epochs=50,
                               verbose=2, validation_split=0.2)  # set batch size to 1, otherwise there are errors when trying to add the custom_error above
 
 plt.plot(history_full.history['val_loss'])
@@ -58,23 +62,12 @@ model_full.save("model_full.h5")
 sparseDF = pd.read_csv("dataSparse.csv")
 
 
-def baseline_model():
-    # create model
-    i = Input(shape=(6,))
-    x = Dense(10, activation='relu')(i)
-    y = Dense(10, activation='relu')(x)
-    o = Dense(1)(y)
-    model = Model(i, o)
-    model.compile(loss="mse", optimizer="adam")
-    return model
-
-
 model_sparse = baseline_model()
 X = sparseDF[['S', 'K', 'q', 'r', 'sigma', 't']]
 y = sparseDF[['price']]
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.1, random_state=7)
-history_sparse = model_sparse.fit(X_train, y_train, batch_size=64, epochs=20,
+history_sparse = model_sparse.fit(X_train, y_train, batch_size=64, epochs=50,
                                   verbose=2, validation_split=0.2)  # set batch size to 1, otherwise there are errors when trying to add the custom_error above
 plt.plot(history_sparse.history['val_loss'])
 plt.title('Model validation loss')
@@ -92,23 +85,12 @@ model_sparse.save("model_sparse.h5")
 extremesDF = pd.read_csv("dataExtremes.csv")
 
 
-def baseline_model():
-    # create model
-    i = Input(shape=(6,))
-    x = Dense(10, activation='relu')(i)
-    y = Dense(10, activation='relu')(x)
-    o = Dense(1)(y)
-    model = Model(i, o)
-    model.compile(loss="mse", optimizer="adam")
-    return model
-
-
 model_extremes = baseline_model()
 X = extremesDF[['S', 'K', 'q', 'r', 'sigma', 't']]
 y = extremesDF[['price']]
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.1, random_state=7)
-history_extremes = model_extremes.fit(X_train, y_train, batch_size=64, epochs=20,
+history_extremes = model_extremes.fit(X_train, y_train, batch_size=64, epochs=50,
                                       verbose=2, validation_split=0.2)  # set batch size to 1, otherwise there are errors when trying to add the custom_error above
 plt.plot(history_extremes.history['val_loss'])
 plt.title('Model validation loss')
